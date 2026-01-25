@@ -44,3 +44,4 @@ docker --version  # >= 24.0.0
 
 # Git
 git --version  # >= 2.40.0
+```
