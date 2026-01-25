@@ -26,29 +26,6 @@
 - **Web Server**: Nginx (reverse proxy)
 
 ---
-
-## ✨ Features
-
-### Production-Ready Characteristics
-- ✅ **Multi-AZ Deployment**: High availability across 2 availability zones
-- ✅ **Zero-Downtime Deployments**: Ansible rolling updates with health checks
-- ✅ **Dynamic Inventory**: Auto-discovery of EC2 instances via AWS tags
-- ✅ **Infrastructure as Code**: 100% reproducible with Terraform
-- ✅ **Remote State Management**: S3 backend with DynamoDB locking
-- ✅ **Security Best Practices**: 
-  - Least-privilege IAM roles
-  - Security Groups with minimal access
-  - Private subnets for app/database layers
-  - Bastion host for SSH access
-- ✅ **Cost Optimization**:
-  - Single NAT Gateway for dev (~$32/month)
-  - S3 Gateway Endpoint (free, saves NAT costs)
-  - AWS Free Tier eligible resources
-- ✅ **Monitoring**: CloudWatch metrics and logs
-- ✅ **Automated CI/CD**: GitLab pipeline for build → test → deploy
-
----
-
 ## 📦 Prerequisites
 
 ### Required Tools
