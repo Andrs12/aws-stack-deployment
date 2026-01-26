@@ -1,8 +1,9 @@
 
 ---
+## 🏗️ Architecture
+![AWS DevOps Stack Architecture](docs/images/arquitecture.png)
 
 ## 🛠️ Tech Stack
-
 ### Infrastructure & DevOps
 - **IaC**: Terraform 1.6+ (AWS Provider 5.x)
 - **Configuration Management**: Ansible 2.15+
