@@ -1,5 +1,39 @@
 
----
+# AWS DevOps Production Stack
+
+> Complete infrastructure automation project with CI/CD, multi-AZ deployment, and production-grade practices
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![AWS](https://img.shields.io/badge/AWS-Cloud-orange.svg)](https://aws.amazon.com)
+
+## Description
+
+This project demonstrates a **complete production cloud infrastructure** with full automation and modern DevOps practices. It deploys a scalable three-tier web application using Infrastructure as Code, configuration management, and continuous delivery pipelines.
+
+### Purpose
+
+Built as a **comprehensive DevOps portfolio piece**, this project showcases:
+
+- End-to-end infrastructure automation from network to application layer
+- Multi-availability zone architecture with load balancing and failover
+- Fully automated CI/CD pipeline for zero-downtime deployments
+- Security best practices with network isolation and encrypted communications
+- Cost-optimized resource sizing following AWS Well-Architected Framework
+
+The system represents a **real-world production environment** scaled for learning purposes, demonstrating the ability to design, implement, and maintain modern cloud infrastructure through code-driven workflows.
+
+### What It Does
+
+- Provisions complete cloud infrastructure automatically
+- Deploys load-balanced application servers across multiple zones
+- Manages databases with automated backups and high availability
+- Monitors system health with centralized logging and metrics
+- Enables automated deployments through continuous delivery pipelines
+- Provides disaster recovery through reproducible infrastructure definitions
+
+Every infrastructure and application change follows automated validation, testing, and deployment processes, ensuring consistency and reliability.
+
+
 ## 🏗️ Architecture
 ![AWS DevOps Stack Architecture](docs/images/arquitecture.png)
 
