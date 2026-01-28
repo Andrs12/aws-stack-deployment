@@ -86,3 +86,9 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "ssh_private_key_content" {
+  description = "SSH private key content to distribute to instances"
+  type        = string
+  sensitive   = true
+}

@@ -53,13 +53,13 @@ output "bastion_public_ip" {
 # Connection Info
 output "ssh_bastion_command" {
   description = "SSH command to connect to bastion"
-  value       = module.compute.bastion_public_ip != null ? "ssh -i .ssh/devops-stack-key ec2-user@${module.compute.bastion_public_ip}" : "Bastion disabled"
+  value       = module.compute.bastion_public_ip != null ? "ssh -i ~/.ssh/devops-stack-key ec2-user@${module.compute.bastion_public_ip}" : "Bastion disabled"
 }
 
 output "ssh_to_ec2_via_bastion" {
   description = "SSH command to connect to EC2 instances via bastion"
   value = module.compute.bastion_public_ip != null ? join("\n", [
     for idx, ip in module.compute.ec2_private_ips :
-    "ssh -i .ssh/devops-stack-key -o ProxyCommand=\"ssh -W %h:%p -i .ssh/devops-stack-key ec2-user@${module.compute.bastion_public_ip}\" ec2-user@${ip}"
+    "ssh -i ~/.ssh/devops-stack-key -o ProxyCommand=\"ssh -W %h:%p -i ~/.ssh/devops-stack-key ec2-user@${module.compute.bastion_public_ip}\" ec2-user@${ip}"
   ]) : "Bastion disabled"
 }

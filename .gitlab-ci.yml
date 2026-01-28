@@ -1,0 +1,88 @@
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  DOCKER_DRIVER: overlay2
+  APP_VERSION: ${CI_COMMIT_SHORT_SHA}
+
+# Build Docker image
+build:backend:
+  stage: build
+  tags:
+    - aws
+  script:
+    - echo "🔨 Building backend version ${APP_VERSION}"
+    - cd /opt/app
+    - docker compose build --no-cache
+    - docker tag app-backend:latest app-backend:${APP_VERSION}
+    - echo "✅ Build completed"
+  only:
+    - main
+
+# Test application health
+test:health:
+  stage: test
+  tags:
+    - aws
+  script:
+    - echo "🧪 Testing application health..."
+    - |
+      for i in {1..5}; do
+        if curl -f http://localhost/health; then
+          echo "✅ Health check passed"
+          exit 0
+        fi
+        echo "Retry $i/5..."
+        sleep 5
+      done
+      echo "❌ Health check failed"
+      exit 1
+    - echo "✅ Tests passed"
+  only:
+    - main
+
+# Deploy to production (manual approval required)
+deploy:production:
+  stage: deploy
+  tags:
+    - aws
+    - deploy
+  script:
+    - echo "🚀 Deploying version ${APP_VERSION} to production..."
+    
+    # Deploy with Ansible
+    - cd /home/gitlab-runner/ansible
+    - |
+      ansible-playbook playbooks/deploy-app.yml \
+        -i inventory.yml \
+        --extra-vars "app_version=${APP_VERSION}"
+    
+    - echo "✅ Deployment completed"
+    
+    # Verify deployment on all servers
+    - sleep 10
+    - ansible app_servers -i inventory.yml -m shell -a "curl -f http://localhost/health"
+    
+    - echo "🎉 Production deployment successful!"
+  
+  environment:
+    name: production
+  
+  only:
+    - main
+  
+  when: manual  # Requiere click manual para deploy
+
+# Show pipeline info
+pipeline:info:
+  stage: .pre
+  tags:
+    - aws
+  script:
+    - echo "Pipeline triggered by ${GITLAB_USER_LOGIN}"
+    - echo "Commit ${CI_COMMIT_SHORT_SHA}"
+    - echo "Branch ${CI_COMMIT_REF_NAME}"
+  only:
+    - main
