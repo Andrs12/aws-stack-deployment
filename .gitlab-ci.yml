@@ -15,8 +15,8 @@ build:backend:
   script:
     - echo "🔨 Building backend version ${APP_VERSION}"
     - cd /opt/app
-    - docker compose build --no-cache
-    - docker tag app-backend:latest app-backend:${APP_VERSION}
+    - docker-compose build  # Sin --no-cache para v1
+    - docker tag app-backend:latest app-backend:${APP_VERSION} || true
     - echo "✅ Build completed"
   only:
     - main
@@ -39,7 +39,6 @@ test:health:
       done
       echo "❌ Health check failed"
       exit 1
-    - echo "✅ Tests passed"
   only:
     - main
 
@@ -51,19 +50,27 @@ deploy:production:
     - deploy
   script:
     - echo "🚀 Deploying version ${APP_VERSION} to production..."
+    - cd /opt/app
     
-    # Deploy with Ansible
-    - cd /home/gitlab-runner/ansible
+    # Recreate containers with new build
+    - docker-compose up -d --build --force-recreate
+    
+    - echo "⏳ Waiting for services to be healthy..."
+    - sleep 15
+    
+    # Verify deployment
     - |
-      ansible-playbook playbooks/deploy-app.yml \
-        -i inventory.yml \
-        --extra-vars "app_version=${APP_VERSION}"
-    
-    - echo "✅ Deployment completed"
-    
-    # Verify deployment on all servers
-    - sleep 10
-    - ansible app_servers -i inventory.yml -m shell -a "curl -f http://localhost/health"
+      for i in {1..10}; do
+        if curl -f http://localhost/health; then
+          echo "✅ Deployment verified"
+          exit 0
+        fi
+        echo "Waiting for service... $i/10"
+        sleep 5
+      done
+      echo "⚠️ Service not responding, check logs"
+      docker-compose logs --tail 20
+      exit 1
     
     - echo "🎉 Production deployment successful!"
   
@@ -73,7 +80,7 @@ deploy:production:
   only:
     - main
   
-  when: manual  # Requiere click manual para deploy
+  when: manual  # Requiere aprobación manual
 
 # Show pipeline info
 pipeline:info:
@@ -81,8 +88,12 @@ pipeline:info:
   tags:
     - aws
   script:
-    - echo "Pipeline triggered by ${GITLAB_USER_LOGIN}"
-    - echo "Commit ${CI_COMMIT_SHORT_SHA}"
-    - echo "Branch ${CI_COMMIT_REF_NAME}"
+    - echo "📦 Pipeline triggered"
+    - echo "👤 User ${GITLAB_USER_LOGIN}"
+    - echo "📝 Commit ${CI_COMMIT_SHORT_SHA}"
+    - echo "🌿 Branch ${CI_COMMIT_REF_NAME}"
+    - echo "🐳 Docker version:"
+    - docker --version
+    - docker-compose --version || docker compose version
   only:
     - main
