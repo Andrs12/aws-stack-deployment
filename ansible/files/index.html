@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Andrés - DevOps Engineer Portfolio</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    header {
+      background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      color: white;
+      padding: 40px;
+      text-align: center;
+    }
+    h1 { font-size: 2.5em; margin-bottom: 10px; }
+    .tagline { font-size: 1.2em; opacity: 0.9; }
+    .content { padding: 40px; }
+    .status-box {
+      background: #f8f9fa;
+      border-left: 4px solid #28a745;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .status-box.loading { border-color: #ffc107; }
+    .status-box.error { border-color: #dc3545; }
+    .status-title { font-weight: bold; font-size: 1.2em; margin-bottom: 10px; }
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .status-item { padding: 10px; background: white; border-radius: 4px; }
+    .status-label { font-size: 0.9em; color: #666; }
+    .status-value { font-weight: bold; font-size: 1.1em; color: #2c3e50; }
+    section { margin: 30px 0; }
+    h2 {
+      color: #2c3e50;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #667eea;
+    }
+    .skills { display: flex; flex-wrap: wrap; gap: 10px; }
+    .skill-tag {
+      background: #667eea;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9em;
+    }
+    ul { list-style-position: inside; }
+    li { padding: 8px 0; }
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #f8f9fa;
+      color: #666;
+    }
+    @media (max-width: 768px) {
+      body { padding: 10px; }
+      header { padding: 20px; }
+      h1 { font-size: 1.8em; }
+      .content { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>👨‍💻 Andrés</h1>
+      <p class="tagline">DevOps Engineer | Madrid, España</p>
+      <p style="margin-top: 10px;">AWS · Terraform · Ansible · GitLab CI · Docker</p>
+    </header>
+
+    <div class="content">
+      <div class="status-box loading" id="statusBox">
+        <div class="status-title">🚀 Backend API Status: <span id="statusText">Verificando...</span></div>
+        <div class="status-grid" id="statusGrid" style="display:none;">
+          <div class="status-item">
+            <div class="status-label">Node.js Version</div>
+            <div class="status-value" id="nodeVersion">-</div>
+          </div>
+          <div class="status-item">
+            <div class="status-label">Server ID</div>
+            <div class="status-value" id="serverId">-</div>
+          </div>
+          <div class="status-item">
+            <div class="status-label">Uptime</div>
+            <div class="status-value" id="uptime">-</div>
+          </div>
+          <div class="status-item">
+            <div class="status-label">Application</div>
+            <div class="status-value" id="appName">-</div>
+          </div>
+        </div>
+      </div>
+
+      <section>
+        <h2>🛠️ Skills Técnicas</h2>
+        <div class="skills">
+          <span class="skill-tag">☁️ AWS (VPC, EC2, RDS, ALB, S3)</span>
+          <span class="skill-tag">📦 Terraform (IaC)</span>
+          <span class="skill-tag">⚙️ Ansible</span>
+          <span class="skill-tag">🔄 GitLab CI/CD</span>
+          <span class="skill-tag">🐳 Docker & Docker Compose</span>
+          <span class="skill-tag">💻 Node.js & Express</span>
+          <span class="skill-tag">🅰️ Angular</span>
+          <span class="skill-tag">🐘 PostgreSQL</span>
+        </div>
+      </section>
+
+      <section>
+        <h2>📂 Este Proyecto: DevOps AWS Stack</h2>
+        <p><strong>Stack completo production-ready desplegado en AWS</strong></p>
+        <ul>
+          <li>🏗️ <strong>Infraestructura:</strong> Terraform con VPC multi-AZ (2 availability zones)</li>
+          <li>⚖️ <strong>Load Balancing:</strong> Application Load Balancer distribuyendo tráfico</li>
+          <li>🔧 <strong>Configuration Management:</strong> Ansible con roles estructurados</li>
+          <li>🐳 <strong>Containerización:</strong> Docker + Docker Compose</li>
+          <li>💚 <strong>Health Checks:</strong> Monitorización automática de servicios</li>
+          <li>🔐 <strong>Seguridad:</strong> Security Groups con least privilege, bastion host</li>
+          <li>📊 <strong>Alta Disponibilidad:</strong> 2 servidores app detrás del ALB</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>🎯 Arquitectura AWS</h2>
+        <ul>
+          <li>VPC con subnets públicas y privadas (10.0.0.0/16)</li>
+          <li>Bastion host para acceso seguro SSH</li>
+          <li>2x EC2 t3.micro (app servers en private subnet)</li>
+          <li>RDS PostgreSQL (db.t3.micro)</li>
+          <li>Application Load Balancer (público)</li>
+          <li>NAT Gateway para salida internet</li>
+        </ul>
+      </section>
+    </div>
+
+    <footer>
+      <p>Infraestructura desplegada en <strong>AWS eu-west-1</strong> (Ireland)</p>
+      <p style="margin-top: 5px; font-size: 0.9em;">Terraform + Ansible + Docker + GitLab CI</p>
+    </footer>
+  </div>
+
+  <script>
+    fetch('/api/info')
+      .then(response => response.json())
+      .then(data => {
+        const statusBox = document.getElementById('statusBox');
+        statusBox.className = 'status-box';
+        document.getElementById('statusText').textContent = 'ONLINE ✅';
+        document.getElementById('statusGrid').style.display = 'grid';
+        document.getElementById('nodeVersion').textContent = data.node || '-';
+        document.getElementById('serverId').textContent = data.server || '-';
+        document.getElementById('uptime').textContent = data.uptime ? data.uptime + 's' : '-';
+        document.getElementById('appName').textContent = data.app || '-';
+      })
+      .catch(error => {
+        const statusBox = document.getElementById('statusBox');
+        statusBox.className = 'status-box error';
+        document.getElementById('statusText').textContent = 'ERROR ❌';
+        console.error('Backend error:', error);
+      });
+  </script>
+</body>
+</html>

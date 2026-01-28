@@ -1,0 +1,143 @@
+---
+- name: Deploy DevOps Stack Backend
+  hosts: app_servers
+  become: yes
+  vars:
+    app_dir: /opt/app
+  
+  tasks:
+    - name: Stop existing app
+      shell: docker compose down -v || true
+      args:
+        chdir: "{{ app_dir }}"
+      ignore_errors: yes
+
+    - name: Create app structure
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: ec2-user
+        group: ec2-user
+        mode: '0755'
+      loop:
+        - "{{ app_dir }}"
+        - "{{ app_dir }}/backend"
+
+    - name: Create Dockerfile
+      copy:
+        dest: "{{ app_dir }}/backend/Dockerfile"
+        owner: ec2-user
+        group: ec2-user
+        content: |
+          FROM node:18-alpine
+          WORKDIR /app
+          RUN npm init -y && npm i express cors
+          COPY server.js .
+          EXPOSE 3000
+          CMD ["node", "server.js"]
+
+    - name: Create server.js
+      copy:
+        dest: "{{ app_dir }}/backend/server.js"
+        owner: ec2-user
+        group: ec2-user
+        content: |
+          const express = require('express');
+          const cors = require('cors');
+          const os = require('os');
+          
+          const app = express();
+          app.use(cors());
+          app.use(express.json());
+          
+          app.get('/health', (req, res) => {
+            res.json({
+              status: 'healthy',
+              server: os.hostname(),
+              timestamp: new Date().toISOString()
+            });
+          });
+          
+          app.get('/api/info', (req, res) => {
+            res.json({
+              app: 'DevOps Stack API',
+              version: '1.0.0',
+              server: os.hostname(),
+              node: process.version,
+              uptime: Math.floor(process.uptime())
+            });
+          });
+          
+          app.listen(3000, () => console.log('✅ Backend ready on port 3000'));
+
+    - name: Create docker-compose.yml
+      copy:
+        dest: "{{ app_dir }}/docker-compose.yml"
+        owner: ec2-user
+        group: ec2-user
+        content: |
+          version: '3.8'
+          services:
+            backend:
+              build: ./backend
+              ports:
+                - "80:3000"
+              restart: unless-stopped
+              healthcheck:
+                test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+                interval: 10s
+                timeout: 5s
+                retries: 3
+                start_period: 10s
+              logging:
+                driver: json-file
+                options:
+                  max-size: "10m"
+                  max-file: "3"
+
+    - name: Build and start application
+      shell: |
+        docker compose build --no-cache
+        docker compose up -d --force-recreate
+      args:
+        chdir: "{{ app_dir }}"
+
+    - name: Wait for backend to be ready
+      wait_for:
+        port: 80
+        delay: 10
+        timeout: 120
+
+    - name: Test health endpoint
+      uri:
+        url: http://localhost/health
+        return_content: yes
+        status_code: 200
+      register: health_check
+      retries: 3
+      delay: 5
+
+    - name: Test info endpoint
+      uri:
+        url: http://localhost/api/info
+        return_content: yes
+        status_code: 200
+      register: info_check
+
+    - name: Display health status
+      debug:
+        msg: "{{ health_check.json }}"
+
+    - name: Display info
+      debug:
+        msg: "{{ info_check.json }}"
+
+    - name: Show running containers
+      shell: docker compose ps
+      args:
+        chdir: "{{ app_dir }}"
+      register: containers
+
+    - name: Display containers
+      debug:
+        var: containers.stdout_lines
