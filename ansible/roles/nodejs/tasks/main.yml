@@ -1,0 +1,37 @@
+---
+- name: Install Node.js and npm
+  ansible.builtin.dnf:
+    name:
+      - nodejs
+      - npm
+    state: present
+  tags: [nodejs, install]
+
+- name: Install global npm packages
+  community.general.npm:
+    name: "{{ item }}"
+    global: yes
+    state: present
+  loop:
+    - pm2
+    - yarn
+  tags: [nodejs, npm]
+
+- name: Verify Node.js installation
+  ansible.builtin.command: node --version
+  register: node_version
+  changed_when: false
+  tags: [nodejs, verify]
+
+- name: Verify npm installation
+  ansible.builtin.command: npm --version
+  register: npm_version
+  changed_when: false
+  tags: [nodejs, verify]
+
+- name: Display Node.js versions
+  ansible.builtin.debug:
+    msg:
+      - "Node.js: {{ node_version.stdout }}"
+      - "npm: {{ npm_version.stdout }}"
+  tags: [nodejs, verify]

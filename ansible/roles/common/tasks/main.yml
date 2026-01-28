@@ -1,0 +1,43 @@
+---
+- name: Update all packages
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+    update_cache: yes
+  tags: [common, packages]
+
+- name: Install base packages
+  ansible.builtin.dnf:
+    name:
+      - git
+      - wget
+      - vim
+      - htop
+      - net-tools
+      - bind-utils
+      - unzip
+      - tar
+      - jq
+    state: present
+  tags: [common, packages]
+
+- name: Set timezone to Europe/Madrid
+  community.general.timezone:
+    name: Europe/Madrid
+  tags: [common, timezone]
+
+- name: Configure ulimits for open files
+  ansible.builtin.lineinfile:
+    path: /etc/security/limits.conf
+    line: "* - nofile 65536"
+    state: present
+  tags: [common, limits]
+
+- name: Create application directory
+  ansible.builtin.file:
+    path: /opt/app
+    state: directory
+    owner: ec2-user
+    group: ec2-user
+    mode: '0755'
+  tags: [common, directories]
