@@ -1,0 +1,75 @@
+---
+- name: Install Docker and dependencies
+  ansible.builtin.dnf:
+    name:
+      - docker
+      - containerd
+    state: present
+  tags: [docker, install]
+
+- name: Start and enable containerd service
+  ansible.builtin.systemd:
+    name: containerd
+    state: started
+    enabled: yes
+  tags: [docker, service]
+
+- name: Start and enable Docker service
+  ansible.builtin.systemd:
+    name: docker
+    state: started
+    enabled: yes
+  tags: [docker, service]
+
+- name: Wait for Docker socket
+  ansible.builtin.wait_for:
+    path: /var/run/docker.sock
+    timeout: 30
+  tags: [docker, service]
+
+- name: Add ec2-user to docker group
+  ansible.builtin.user:
+    name: ec2-user
+    groups: docker
+    append: yes
+  tags: [docker, user]
+
+- name: Install Docker Compose plugin
+  ansible.builtin.get_url:
+    url: https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-x86_64
+    dest: /usr/local/bin/docker-compose
+    mode: '0755'
+  tags: [docker, compose]
+
+- name: Create Docker Compose plugin directory
+  ansible.builtin.file:
+    path: /usr/local/lib/docker/cli-plugins
+    state: directory
+    mode: '0755'
+  tags: [docker, compose]
+
+- name: Link Docker Compose as plugin
+  ansible.builtin.file:
+    src: /usr/local/bin/docker-compose
+    dest: /usr/local/lib/docker/cli-plugins/docker-compose
+    state: link
+  tags: [docker, compose]
+
+- name: Verify Docker installation
+  ansible.builtin.command: docker --version
+  register: docker_version
+  changed_when: false
+  tags: [docker, verify]
+
+- name: Verify Docker Compose installation
+  ansible.builtin.command: docker-compose --version
+  register: docker_compose_version
+  changed_when: false
+  tags: [docker, verify]
+
+- name: Display Docker info
+  ansible.builtin.debug:
+    msg: 
+      - "Docker: {{ docker_version.stdout }}"
+      - "Docker Compose: {{ docker_compose_version.stdout }}"
+  tags: [docker, verify]
