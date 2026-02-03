@@ -5,13 +5,25 @@ data "aws_ami" "amazon_linux_2023" {
 
   filter {
     name   = "name"
-    values = ["al2023-ami-*-x86_64"]
+    values = ["al2023-ami-2023.*-kernel-6.1-x86_64"]
   }
 
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
   }
+}
+
+resource "aws_key_pair" "app_key" {
+  key_name = "${var.project_name}-${var.environment}-key"
+  public_key = file("~/.ssh/devops-stack-key.pub")
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.project_name}-${var.environment}-keypair"
+    }
+  )
 }
 
 # EC2 Instances
@@ -24,7 +36,7 @@ resource "aws_instance" "app" {
 
   vpc_security_group_ids = [aws_security_group.ec2.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2.name
-  key_name               = var.key_name
+  key_name               = aws_key_pair.app_key.key_name
 
   user_data = base64encode(templatefile("${path.module}/user_data.sh", {
     environment = var.environment
@@ -49,6 +61,10 @@ resource "aws_instance" "app" {
     var.tags,
     {
       Name = "${var.project_name}-${var.environment}-ec2-${count.index + 1}"
+      Project     = "devops-aws-stack"
+      Environment = var.environment
+      Role        = "webserver"
+      ManagedBy   = "terraform"
     }
   )
 

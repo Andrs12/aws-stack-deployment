@@ -26,6 +26,10 @@ resource "aws_instance" "bastion" {
       var.tags,
       {
         Name = "${var.project_name}-${var.environment}-bastion"
+        Project     = "devops-aws-stack"
+        Environment = var.environment
+        Role        = "bastion"
+        ManagedBy   = "terraform"
       }
     )
 }
@@ -45,4 +49,30 @@ resource "aws_eip" "bastion" {
     )
 
     depends_on = [ aws_instance.bastion ]
+}
+
+# Add bastion host key to known_hosts
+resource "null_resource" "bastion_known_hosts" {
+  count = var.enable_bastion ? 1 : 0
+
+  triggers = {
+    bastion_ip = aws_eip.bastion[0].public_ip
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      # Remove old entry if exists
+      ssh-keygen -R ${aws_eip.bastion[0].public_ip} 2>/dev/null || true
+      
+      # Wait for SSH to be available and add to known_hosts
+      timeout 60 bash -c 'until ssh-keyscan -H ${aws_eip.bastion[0].public_ip} >> ~/.ssh/known_hosts 2>/dev/null; do
+        echo "Waiting for SSH on bastion..."
+        sleep 5
+      done'
+      
+      echo "Bastion host key added to known_hosts"
+    EOT
+  }
+
+  depends_on = [aws_eip.bastion]
 }

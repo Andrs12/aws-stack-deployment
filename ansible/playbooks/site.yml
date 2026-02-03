@@ -6,9 +6,16 @@
     - common
 
 - name: Configure application servers
-  hosts: app_servers
+  hosts: role_webserver
   become: yes
   roles:
     - docker
     - nodejs
     - nginx
+
+- name: Deploy backend and frontend
+  hosts: role_webserver
+  become: yes
+  tasks:
+    - import_playbook: ../playbooks/deploy-backend.yml
+    - import_playbook: ../playbooks/deploy-frontend.yml
